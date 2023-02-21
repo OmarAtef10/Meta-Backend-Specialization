@@ -1,3 +1,4 @@
+from djoser.conf import User
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -5,8 +6,9 @@ from rest_framework import status
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from django.shortcuts import get_object_or_404
 from .models import Category, MenuItem, Cart, Order, OrderItem
-from .serializers import CategorySerializer, MenuItemSerializer, CartSerializer, OrderSerializer, OrderItemSerializer
-from .permissions import IsManager, Is_Staff, NonManager
+from .serializers import CategorySerializer, MenuItemSerializer, CartSerializer, OrderSerializer, OrderItemSerializer, \
+    UserSerializer
+from .permissions import IsManager, IsStaff, NonManager, IsSuperUser
 
 
 # Create your views here.
@@ -59,17 +61,45 @@ def create_menu_item(request):
     return Response(serializer.errors, status=400)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def secret(request):
-    return Response({'message': 'You found the secret!'}, status=200)
+@api_view(["GET"])
+@permission_classes([IsSuperUser])
+def list_managers(request):
+    if request.method == "GET":
+        managers = User.objects.filter(groups__name='Manager')
+        managers_list = UserSerializer(managers, many=True)
+        return Response(managers_list.data, status=200)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-@throttle_classes([AnonRateThrottle, UserRateThrottle])
-def manager_secret(request):
-    if request.user.groups.filter(name='Manager').exists():
-        return Response({'message': 'You found the Manager secret!'}, status=200)
+@api_view(["POST", "DELETE"])
+@permission_classes([IsSuperUser])
+def manage_managers(request, username):
+    if request.method == "POST":
+        manager = get_object_or_404(User, username=username)
+        manager.groups.add(1)
+        return Response({"Message": "Manager Added Successfully"}, status=200)
+    if request.method == "DELETE":
+        manager = get_object_or_404(User, username=username)
+        manager.groups.remove(1)
+        return Response({"Message": "Manager Removed Successfully"}, status=200)
 
-    return Response({'message': 'This is not the API you are looking for'}, status=403)
+
+@api_view(["GET"])
+@permission_classes([IsManager])
+def list_delivery_crew(request):
+    if request.method == "GET":
+        managers = User.objects.filter(groups__name='Delivery Crew')
+        managers_list = UserSerializer(managers, many=True)
+        return Response(managers_list.data, status=200)
+
+
+@api_view(["POST", "DELETE"])
+@permission_classes([IsManager])
+def manage_delivery_crew(request, username):
+    if request.method == "POST":
+        manager = get_object_or_404(User, username=username)
+        manager.groups.add(2)
+        return Response({"Message": "Delivery Crew Added Successfully"}, status=200)
+    if request.method == "DELETE":
+        manager = get_object_or_404(User, username=username)
+        manager.groups.remove(2)
+        return Response({"Message": "Delivery Crew Removed Successfully"}, status=200)

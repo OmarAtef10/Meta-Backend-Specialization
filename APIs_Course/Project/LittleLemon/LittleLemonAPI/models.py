@@ -45,11 +45,11 @@ class Order(models.Model):
     delivery_crew = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name="delivery_crew", null=True)
     status = models.BooleanField(default=0, db_index=True)
-    total = models.DecimalField(max_digits=6, decimal_places=2)
+    total = models.DecimalField(max_digits=6, decimal_places=2, default=0)
     date = models.DateField(db_index=True)
 
     def __str__(self):
-        return self.user.username + " Order"
+        return self.user.username + " Order With ID " + str(self.id)
 
 
 class OrderItem(models.Model):
@@ -63,4 +63,9 @@ class OrderItem(models.Model):
         unique_together = ('order', 'menuitem')
 
     def __str__(self):
-        return self.user.username + " Order"
+        return self.order.user.username + " Order " + self.menuitem.title + " Item"
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.unit_price = self.menuitem.price
+        self.price = self.quantity * self.menuitem.price
+        super(OrderItem, self).save(force_insert, force_update, using, update_fields)
