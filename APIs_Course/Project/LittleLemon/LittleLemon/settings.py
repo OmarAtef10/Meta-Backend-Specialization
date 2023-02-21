@@ -35,8 +35,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'LittleLemonAPI',
     'rest_framework',
+    'rest_framework_xml',
+    'rest_framework.authtoken',
+    'LittleLemonAPI',
+    'djoser',
 
 ]
 
@@ -50,20 +53,31 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+DJOSER = {
+    "USER_ID_FIELD": "username",
+}
+
 REST_FRAMEWORK = {
-    "DEFAULLT_RENDERER_CLASSES": (
+    "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
-        "rest_framework.renderers.XMLRenderer",
-    )
+        "rest_framework_xml.renderers.XMLRenderer",
+    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "2/minute",
+        "user": "5/minute",
+    },
 }
 ROOT_URLCONF = 'LittleLemon.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
