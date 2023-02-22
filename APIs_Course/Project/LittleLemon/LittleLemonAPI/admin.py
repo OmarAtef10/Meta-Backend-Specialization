@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, MenuItem, Cart, Order, OrderItem
+from .models import Category, MenuItem, Cart, Order, OrderItem, CartItem
 
 
 # Register your models here.
@@ -11,11 +11,19 @@ class Category_admin(admin.ModelAdmin):
 
 admin.site.register(Category, Category_admin)
 admin.site.register(MenuItem)
-admin.site.register(Cart)
+
+
+class Cart_admin(admin.ModelAdmin):
+    readonly_fields = ('id', 'cartTotal')
+
+
+admin.site.register(Cart, Cart_admin)
+
+admin.site.register(CartItem)
 
 
 class Order_admin(admin.ModelAdmin):
-    readonly_fields = ('id', 'total')
+    readonly_fields = ('id', 'orderTotal')
 
 
 admin.site.register(Order, Order_admin)

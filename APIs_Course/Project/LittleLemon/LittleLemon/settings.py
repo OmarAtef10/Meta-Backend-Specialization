@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'LittleLemonAPI',
     'djoser',
+    'django_filters',
 
 ]
 
@@ -67,6 +68,13 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
+    'DEFAULT FILTER BACKENDS': [
+        ' django_filters. rest _ framework. DjangoFi1terBackend ',
+        ' rest_framework. filters. OrderingFi1ter ',
+        'rest framework. filters. SearchFi1ter',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 2,
     "DEFAULT_THROTTLE_RATES": {
         "anon": "2/minute",
         "user": "5/minute",
